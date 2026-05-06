@@ -1,3 +1,4 @@
+use super::{Posicion, Direccion};
 
 #[derive(Clone, Copy)]
 pub enum TipoEnemigo {
@@ -7,9 +8,9 @@ pub enum TipoEnemigo {
 }
 
 pub struct Enemigo {
-    tipo: TipoEnemigo,
-    posicion: Posicion,
-    direccion: Direccion,
+    pub tipo: TipoEnemigo,
+    pub posicion: Posicion,
+    pub direccion: Direccion,
     activo: bool,
 }
 
@@ -19,5 +20,23 @@ impl Enemigo {
               posicion,
               direccion: super::Direccion::Derecha,
               activo: true }
+    }
+
+    pub fn mover(&mut self){
+        match self.direccion {
+            Direccion::Derecha => {
+                self.posicion.x += 1
+            }
+
+            Direccion::Izquierda => {
+                self.posicion.x -= 1
+            }
+
+            Direccion::Abajo => {
+                self.posicion.y += 1
+            }
+
+            _ => {}
+        }
     }
 }

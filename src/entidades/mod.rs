@@ -1,5 +1,9 @@
-#[derive(Clone, Copy)]
-enum Direccion {
+pub mod jugador;
+pub mod enemigo;
+pub mod disparo;
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum Direccion {
     Izquierda,
     Derecha,
     Arriba,

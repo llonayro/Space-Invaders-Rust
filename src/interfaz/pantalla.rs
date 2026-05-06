@@ -1,5 +1,5 @@
 pub struct Pantalla {
-    pixeles: [[char; 60]; 20]
+    pub pixeles: [[char; 60]; 20]
 }
 
 impl Pantalla {
@@ -17,6 +17,8 @@ impl Pantalla {
             p.pixeles[y][0] = '║';
             p.pixeles[y][59] = '║'
         }
+
+        p
     }
 
     pub fn limpiar(&mut self) {
@@ -45,7 +47,7 @@ impl Pantalla {
             salida.push('\n')
         }
 
-        print!({}, salida);
+        print!("{}", salida);
 
         use std::io::{self, Write};
         io::stdout().flush().unwrap();

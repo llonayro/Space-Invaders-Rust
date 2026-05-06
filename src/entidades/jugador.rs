@@ -1,11 +1,14 @@
-struct Jugador {
+use super::Posicion;
+use super::disparo::Disparo;
+
+pub struct Jugador {
     vida: u32,
-    posicion: Posicion,
+    pub posicion: Posicion,
     disparos: Vec<Disparo>,
 }
 
 impl Jugador {
-    fn new() -> Jugador {
+    pub fn new() -> Jugador {
         Jugador {
             vida: 3,
             posicion: Posicion::new(30, 18),
