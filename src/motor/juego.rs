@@ -12,7 +12,7 @@ pub struct Juego {
     jugador: Jugador,
     enemigos: Vec<Enemigo>,
     puntuacion: u32,
-    game_over: bool,
+    pub game_over: bool,
     pantalla: Pantalla
 }
 
@@ -52,45 +52,92 @@ impl Juego {
     }
 
     pub fn preparar_pantalla(&mut self){
+        self.pantalla.limpiar_medio();
+
         for alien in self.enemigos.iter() {
-            let c = match alien.tipo {
-                        TipoEnemigo::Fuerte => {
-                            'Ѫ'
-                        }
+            if alien.activo {
+                let c = match alien.tipo {
+                            TipoEnemigo::Fuerte => {
+                                'Ѫ'
+                            }
 
-                        TipoEnemigo::Normal => {
-                            '¤'
-                        }
+                            TipoEnemigo::Normal => {
+                                '¤'
+                            }
 
-                        TipoEnemigo::Rapido => {
-                            'Ѧ'
-                        }
+                            TipoEnemigo::Rapido => {
+                                'Ѧ'
+                            }
 
-                    };
-            
-            self.pantalla.dibujar_punto(alien.posicion.x, alien.posicion.y, c)
+                        };
+                
+                self.pantalla.dibujar_punto(alien.posicion.x, alien.posicion.y, c)
+            }
+        }
+
+        for disparo in self.jugador.disparos.iter() {
+            self.pantalla.dibujar_punto(disparo.posicion.x, disparo.posicion.y, '⁞');
         }
 
         self.pantalla.dibujar_punto(self.jugador.posicion.x, self.jugador.posicion.y, '▲')
     }
 
     pub fn mostrar(&self) {
-        self.pantalla.renderizar()
+        let mut vidas = String::new();
+        for _ in 0..self.jugador.vida {
+            vidas.push_str(" ❤️");
+        }
+        self.pantalla.renderizar(vidas, self.puntuacion)
     }
 
-    pub fn actualizar(&self){
-        let mut x_max = 28;
-        let mut x_min = 32;
-        for alien in self.enemigos.iter() {
-            if alien.posicion.x > x_max {
-                x_max = alien.posicion.x
-            }
-            if alien.posicion.x < x_min {
-                x_min = alien.posicion.x
-            }
-        }
-        if x_max == 58 && self.enemigos[0].direccion == Direccion::Derecha {
+    pub fn actualizar(&mut self){
+        let x_max = self.enemigos.iter().map(|a| a.posicion.x).max().unwrap_or(0);
+        let x_min = self.enemigos.iter().map(|a| a.posicion.x).min().unwrap_or(0);
 
+        let en_borde_der = x_max == self.pantalla.pixeles[0].len() - 2;
+        let en_borde_izq = x_min == 1;
+        
+        let direccion_actual = self.enemigos[0].direccion;
+
+        let nueva_direccion = match(en_borde_der, en_borde_izq, direccion_actual){
+                                        (true, _, Direccion::Derecha) => {
+                                                                            Direccion::Abajo       
+                                                                        }
+                                        (true, _, Direccion::Abajo) => {
+                                                                            Direccion::Izquierda
+                                                                        }                                     
+                                        
+                                        (_, true, Direccion::Izquierda) => {
+                                                                                Direccion::Abajo
+                                                                            }
+                                        (_, true, Direccion::Abajo) => {
+                                                                            Direccion::Derecha        
+                                                                        }
+
+                                        _ => {
+                                                direccion_actual
+                                            }                                   
+                                    };
+        
+        for alien in self.enemigos.iter_mut() {
+            alien.direccion = nueva_direccion;
+            alien.mover();
         }
+
+        if self.enemigos.last().is_some_and(|e| e.posicion.y == 18) {
+            self.game_over = true
+        }
+
+    }
+
+    pub fn terminar(&mut self) {
+        self.pantalla.limpiar_medio();
+        let texto = ['G', 'A', 'M', 'E', ' ', 'O', 'V', 'E', 'R'];
+        let mut j = 0;
+        for i in 25..34 {
+            self.pantalla.pixeles[10][i] = texto[j];
+            j += 1
+        }
+        self.pantalla.renderizar_sin_cabecera();
     }
 }

@@ -2,9 +2,9 @@ use super::Posicion;
 use super::disparo::Disparo;
 
 pub struct Jugador {
-    vida: u32,
+    pub vida: u32,
     pub posicion: Posicion,
-    disparos: Vec<Disparo>,
+    pub disparos: Vec<Disparo>,
 }
 
 impl Jugador {

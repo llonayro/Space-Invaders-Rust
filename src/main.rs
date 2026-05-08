@@ -1,3 +1,6 @@
+use std::thread;
+use std::time::Duration;
+
 mod motor;
 mod entidades;
 mod interfaz;
@@ -9,5 +12,18 @@ fn main() {
     j.preparar_pantalla();
     j.mostrar();
 
-    j.actualizar();
+    let velocidad = 10;
+    loop {
+        j.actualizar();
+
+        if j.game_over {
+            j.terminar();
+            break;
+        }
+
+        j.preparar_pantalla();
+        j.mostrar();
+
+        thread::sleep(Duration::from_millis(velocidad));
+    }
 }

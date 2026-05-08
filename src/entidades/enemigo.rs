@@ -11,7 +11,7 @@ pub struct Enemigo {
     pub tipo: TipoEnemigo,
     pub posicion: Posicion,
     pub direccion: Direccion,
-    activo: bool,
+    pub activo: bool,
 }
 
 impl Enemigo {

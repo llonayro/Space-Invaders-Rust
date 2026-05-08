@@ -1,16 +1,14 @@
 use super::{Direccion, Posicion};
 
 pub struct Disparo {
-    posicion: Posicion,
-    direccion: Direccion,
-    valido: bool,
+    pub posicion: Posicion,
+    pub direccion: Direccion,
 }
 
 impl Disparo {
     pub fn new (posicion: Posicion, direccion: Direccion) -> Self {
         Self {posicion, 
               direccion , 
-              valido: true,
             }
     }
 
