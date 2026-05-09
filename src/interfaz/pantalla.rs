@@ -30,7 +30,7 @@ impl Pantalla {
     }
 
     pub fn dibujar_punto(&mut self, x: usize, y: usize, caracter: char){
-        if x >= 0 && x < 60 && y >= 0 && y < 20 {
+        if x < 60 && y < 20 {
             self.pixeles[y][x] = caracter
         }
     }

@@ -10,6 +10,7 @@ pub enum Direccion {
     Abajo,
 }
 
+#[derive(PartialEq)]
 pub struct Posicion {
     pub x: usize,
     pub y: usize,

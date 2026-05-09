@@ -1,6 +1,6 @@
 
 
-use crate::entidades::{Posicion, Direccion};
+use crate::entidades::{Direccion, Posicion, jugador};
 
 use crate::entidades::jugador::Jugador;
 use crate::entidades::enemigo::{Enemigo, TipoEnemigo};
@@ -90,7 +90,11 @@ impl Juego {
         self.pantalla.renderizar(vidas, self.puntuacion)
     }
 
-    pub fn actualizar(&mut self){
+    pub fn contar_enemigos(&self) -> usize {
+        self.enemigos.iter().filter(|a| a.activo).count()
+    }
+
+    pub fn actualizar_enemigos(&mut self){
         let x_max = self.enemigos.iter().map(|a| a.posicion.x).max().unwrap_or(0);
         let x_min = self.enemigos.iter().map(|a| a.posicion.x).min().unwrap_or(0);
 
@@ -118,7 +122,7 @@ impl Juego {
                                                 direccion_actual
                                             }                                   
                                     };
-        
+
         for alien in self.enemigos.iter_mut() {
             alien.direccion = nueva_direccion;
             alien.mover();
@@ -130,11 +134,58 @@ impl Juego {
 
     }
 
+    pub fn actualizar_disparos(&mut self) {
+        
+        for bala in self.jugador.disparos.iter_mut() {
+            bala.mover();
+            for alien in self.enemigos.iter_mut().filter(|a| a.activo && a.posicion == bala.posicion) {
+                self.puntuacion += match alien.tipo {
+                    TipoEnemigo::Fuerte => { 300 },
+                    TipoEnemigo::Rapido => { 200 },
+                    TipoEnemigo::Normal => { 100 },
+                };
+                alien.activo = false;
+                bala.activo = false;
+            }
+            if bala.posicion.y == 0 {
+                bala.activo = false;
+            }
+        }
+        self.jugador.disparos.retain(|d| d.activo);
+    }
+
+    pub fn mover_jug_der(&mut self) {
+        if self.jugador.posicion.x < self.pantalla.pixeles[0].len() - 2 {
+            self.jugador.moverse_der();
+        }
+    }
+
+    pub fn disparar(&mut self) {
+        self.jugador.disparar();
+    }
+
+    pub fn mover_jug_izq(&mut self) {
+        if self.jugador.posicion.x > 1 {
+            self.jugador.moverse_izq();
+        }
+    }
+
     pub fn terminar(&mut self) {
         self.pantalla.limpiar_medio();
         let texto = ['G', 'A', 'M', 'E', ' ', 'O', 'V', 'E', 'R'];
         let mut j = 0;
         for i in 25..34 {
+            self.pantalla.pixeles[10][i] = texto[j];
+            j += 1
+        }
+        self.pantalla.renderizar_sin_cabecera();
+    }
+
+    pub fn ganaste(&mut self) {
+        self.pantalla.limpiar_medio();
+        let texto = ['G', 'A', 'N', 'A', 'S', 'T', 'E'];
+        let mut j = 0;
+        for i in 27..34 {
             self.pantalla.pixeles[10][i] = texto[j];
             j += 1
         }

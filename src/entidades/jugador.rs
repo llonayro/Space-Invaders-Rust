@@ -15,4 +15,18 @@ impl Jugador {
             disparos: Vec::new()
         }
     }
+
+    pub fn disparar(&mut self) {
+        let nueva_posicion = Posicion::new(self.posicion.x, self.posicion.y - 1);
+        let disparo = Disparo::new(nueva_posicion, super::Direccion::Arriba);
+        self.disparos.push(disparo);
+    }
+
+    pub fn moverse_der(&mut self) {
+        self.posicion.x += 1
+    }
+
+    pub fn moverse_izq(&mut self) {
+        self.posicion.x -= 1
+    }
 }
