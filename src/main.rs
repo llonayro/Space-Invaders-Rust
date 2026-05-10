@@ -1,11 +1,7 @@
 
 use crossterm::{
     event::{self, Event, KeyCode},
-    terminal::{enable_raw_mode, disable_raw_mode, Clear, ClearType},
-    cursor::{MoveTo, Hide, Show},
-    execute,
 };
-use std::io::stdout;
 
 use std::thread;
 use std::time::Duration;
@@ -24,6 +20,7 @@ fn main() {
     j.mostrar();
 
     let mut contador: u32 = 0;
+    let mut terminado = false;
     loop {
         
         if contador % (j.contar_enemigos() + 1) as u32 == 0 {
@@ -34,7 +31,11 @@ fn main() {
             j.actualizar_disparos();
         }
 
-        if event::poll(Duration::from_millis(2)).unwrap() {
+        if contador % 5 == 0 {
+            j.disparar_enemigo();
+        }
+
+        while event::poll(Duration::from_millis(0)).unwrap() {
             if let Event::Key(key_event) = event::read().unwrap() {
                 if key_event.kind == event::KeyEventKind::Press{
                     match key_event.code {
@@ -51,13 +52,17 @@ fn main() {
                         },
                         
                         KeyCode::Char('q') => {
-                            break;
+                            terminado = true;
                         }
 
                         _ => {}
                     }
                 }
             }
+        }
+
+        if terminado {
+            break;
         }
 
         if j.game_over {

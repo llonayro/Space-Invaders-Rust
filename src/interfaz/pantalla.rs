@@ -1,3 +1,11 @@
+use crossterm::{
+    terminal::{Clear, ClearType},
+    cursor::{MoveTo, Hide},
+    execute,
+};
+
+use std::io::stdout;
+
 pub struct Pantalla {
     pub pixeles: [[char; 60]; 20]
 }
@@ -30,13 +38,18 @@ impl Pantalla {
     }
 
     pub fn dibujar_punto(&mut self, x: usize, y: usize, caracter: char){
-        if x < 60 && y < 20 {
+        if x < 60 && y < 19 {
             self.pixeles[y][x] = caracter
         }
     }
 
     pub fn renderizar(&self, vidas: String, puntuacion: u32) {
-        print!("{}[2J{}[1;1H", 27 as char, 27 as char);
+        execute!(
+            stdout(),
+            MoveTo(0, 0),
+            Clear(ClearType::FromCursorDown), 
+            Hide                   
+        ).unwrap();
 
         println!("   Vidas: {:<2}             Puntuacion: {:0>5}", vidas, puntuacion);
 
@@ -56,7 +69,12 @@ impl Pantalla {
     }
 
     pub fn renderizar_sin_cabecera(&self) {
-        print!("{}[2J{}[1;1H", 27 as char, 27 as char);
+        execute!(
+            stdout(),
+            MoveTo(0, 0),
+            Clear(ClearType::FromCursorDown), 
+            Hide                   
+        ).unwrap();
         
         let mut salida = String::with_capacity(60*20 + 20);
 

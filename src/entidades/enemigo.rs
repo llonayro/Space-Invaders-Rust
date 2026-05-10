@@ -1,3 +1,5 @@
+use crate::entidades::disparo::Disparo;
+
 use super::{Posicion, Direccion};
 
 #[derive(Clone, Copy)]
@@ -12,6 +14,7 @@ pub struct Enemigo {
     pub posicion: Posicion,
     pub direccion: Direccion,
     pub activo: bool,
+    pub disparos: Vec<Disparo>,
 }
 
 impl Enemigo {
@@ -19,7 +22,9 @@ impl Enemigo {
         Self {tipo, 
               posicion,
               direccion: super::Direccion::Derecha,
-              activo: true }
+              activo: true,
+              disparos: Vec::new(),
+            }
     }
 
     pub fn mover(&mut self){
@@ -38,5 +43,11 @@ impl Enemigo {
 
             _ => {}
         }
+    }
+
+    pub fn disparar(&mut self){
+        let pos = Posicion::new(self.posicion.x, self.posicion.y + 1);
+        let disparo = Disparo::new(pos, Direccion::Abajo);
+        self.disparos.push(disparo);
     }
 }

@@ -1,10 +1,10 @@
-
-
-use crate::entidades::{Direccion, Posicion, jugador};
+use crate::entidades::{Direccion, Posicion};
 
 use crate::entidades::jugador::Jugador;
 use crate::entidades::enemigo::{Enemigo, TipoEnemigo};
 use crate::interfaz::pantalla::Pantalla;
+
+use my_random::MyRandom;
 
 
 
@@ -77,6 +77,19 @@ impl Juego {
 
         for disparo in self.jugador.disparos.iter() {
             self.pantalla.dibujar_punto(disparo.posicion.x, disparo.posicion.y, '⁞');
+        }
+
+        let mut disparos_enemigos = Vec::new();
+        
+        for alien in self.enemigos.iter().filter(|a| a.activo) {
+            disparos_enemigos.extend(alien.disparos.iter());
+        }
+        
+
+        for alien in self.enemigos.iter().filter(|a| a.activo){
+            for d in disparos_enemigos.iter().filter(|d| d.posicion != alien.posicion){
+                self.pantalla.dibujar_punto(d.posicion.x, d.posicion.y, '↓');
+            }
         }
 
         self.pantalla.dibujar_punto(self.jugador.posicion.x, self.jugador.posicion.y, '▲')
@@ -152,6 +165,40 @@ impl Juego {
             }
         }
         self.jugador.disparos.retain(|d| d.activo);
+
+
+        let mut disparos_enemigos = Vec::new();
+        for alien in self.enemigos.iter_mut().filter(|a| a.activo) {
+            disparos_enemigos.extend(alien.disparos.iter_mut());
+        }
+
+        for d in disparos_enemigos.iter_mut() {
+            d.mover();
+        }
+        for disparo in self.jugador.disparos.iter_mut() {
+            for disp_ene in disparos_enemigos.iter_mut().filter(|de| de.posicion == disparo.posicion) {
+                disparo.activo = false;
+                disp_ene.activo = false;
+            }
+        }
+
+        for disp in disparos_enemigos.iter() {
+
+            if disp.posicion == self.jugador.posicion {
+                self.jugador.vida -= 1;
+                self.jugador.posicion.x = 30;
+                self.jugador.posicion.y = 18;
+            }
+
+            if self.jugador.vida == 0 {
+                self.game_over = true;
+            }
+        }
+
+        disparos_enemigos.retain(|de| de.activo);
+        
+
+
     }
 
     pub fn mover_jug_der(&mut self) {
@@ -164,6 +211,22 @@ impl Juego {
         self.jugador.disparar();
     }
 
+    pub fn disparar_enemigo(&mut self) {
+        let mut rng = MyRandom::new();
+        for alien in self.enemigos.iter_mut() {
+            if rng.rand_range(1, 100) == 27 {
+                alien.disparar();
+            }
+
+            if alien.posicion.x == self.jugador.posicion.x {
+                if rng.rand_range(1, 5) == 2 {
+                    alien.disparar();
+                }
+            }
+        }
+        
+    }
+
     pub fn mover_jug_izq(&mut self) {
         if self.jugador.posicion.x > 1 {
             self.jugador.moverse_izq();
@@ -174,21 +237,83 @@ impl Juego {
         self.pantalla.limpiar_medio();
         let texto = ['G', 'A', 'M', 'E', ' ', 'O', 'V', 'E', 'R'];
         let mut j = 0;
+
         for i in 25..34 {
-            self.pantalla.pixeles[10][i] = texto[j];
+            self.pantalla.pixeles[1][i] = texto[j];
             j += 1
         }
+
+        self.rellenar();
+
         self.pantalla.renderizar_sin_cabecera();
     }
 
     pub fn ganaste(&mut self) {
         self.pantalla.limpiar_medio();
+
         let texto = ['G', 'A', 'N', 'A', 'S', 'T', 'E'];
         let mut j = 0;
         for i in 27..34 {
-            self.pantalla.pixeles[10][i] = texto[j];
+            self.pantalla.pixeles[1][i] = texto[j];
             j += 1
         }
+
+        self.rellenar();
+
         self.pantalla.renderizar_sin_cabecera();
+    }
+
+    fn rellenar(&mut self) {
+        let titulo = ['S', 'A', 'L', 'O', 'N', ' ', 'D', 'E', ' ', 'L', 'A', ' ', 'F', 'A', 'M', 'A'];
+        let mut j = 0;
+        for i in 22..38 {
+            self.pantalla.pixeles[3][i] = titulo[j];
+            j += 1
+        }
+
+        let primer_lugar = ['1', '.', ' ', 'B', 'i', 'l', 'l', 'y', ' ', 'M', 'i', 't', 'c', 'h', 'e', 'l', 'l', ' ', '.', '.', '.', '.', ' ', 'l', '0', '0', '0', '0'];
+        let mut j = 0;
+        for i in 16..44 {
+            self.pantalla.pixeles[5][i] = primer_lugar[j];
+            j += 1
+        }
+
+        let segundo_lugar = ['2', '.', ' ', 'L', 'i', 'n', 'u', 's', ' ', 'T', 'o', 'r', 'v', 'a', 'l', 'd', 's', ' ', '.', '.', '.', '.', ' ', '3', '0', '0', '0'];
+        let mut j2 = 0;
+        for i in 16..43 { 
+            self.pantalla.pixeles[6][i] = segundo_lugar[j2];
+            j2 += 1;
+        }
+
+        let tercer_lugar = ['3', '.', ' ', 'B', 'r', 'e', 'n', 'd', 'a', 'n', ' ', 'E', 'i', 'c', 'h', ' ', '.', '.', '.', '.', '.', '.', ' ', '3', '0', '0', '0'];
+        let mut j3 = 0;
+        for i in 16..43 { 
+            self.pantalla.pixeles[7][i] = tercer_lugar[j3];
+            j3 += 1;
+        }
+
+        for i in 8..10 {
+            self.pantalla.pixeles[i][16] = '.';
+        }
+
+        let puntaje_str = format!("{:0>4}", self.puntuacion);
+        let p_chars: Vec<char> = puntaje_str.chars().collect();
+        let puesto = ['5', '1', '.', ' ', 'Y', 'o', 'u', ' ', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', ' ', p_chars[0], p_chars[1], p_chars[2], p_chars[3]];
+        let mut jp = 0;
+        for i in 16..43 {
+            self.pantalla.pixeles[10][i] = puesto[jp];
+            jp += 1;
+        }
+
+        for i in 11..13 {
+            self.pantalla.pixeles[i][16] = '.';
+        }
+
+        let posicion_100 = ['1', '0', '0', '.', ' ', 'H', 'u', 'g', 'o', ' ', 'N', 'e', 'x', ' ', '.', '.', '.', '.', '.', '.', '.', '.', ' ', '0', '1', '0', '0'];
+        let mut j100 = 0;
+        for i in 16..43 { 
+            self.pantalla.pixeles[13][i] = posicion_100[j100];
+            j100 += 1;
+        }
     }
 }
