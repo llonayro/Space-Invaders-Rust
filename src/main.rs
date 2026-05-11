@@ -25,7 +25,7 @@ fn main() {
         
         if contador % (j.contar_enemigos() + 1) as u32 == 0 {
             j.actualizar_enemigos();
-        }
+        }  
 
         if contador % 2 == 0 {
             j.actualizar_disparos();

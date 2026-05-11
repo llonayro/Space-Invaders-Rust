@@ -20,7 +20,7 @@ impl Juego {
     pub fn new() -> Self {
         let mut lista_enemigos = Vec::new();
         for y in 1..4 {
-            for x in 28..33 {
+            for x in (25..35).step_by(2) {
                 let tipo = match y {
                               1 => {
                                 TipoEnemigo::Fuerte
@@ -87,7 +87,7 @@ impl Juego {
         
 
         for alien in self.enemigos.iter().filter(|a| a.activo){
-            for d in disparos_enemigos.iter().filter(|d| d.posicion != alien.posicion){
+            for d in disparos_enemigos.iter().filter(|d| d.activo && d.posicion != alien.posicion){
                 self.pantalla.dibujar_punto(d.posicion.x, d.posicion.y, '↓');
             }
         }
@@ -175,12 +175,15 @@ impl Juego {
         for d in disparos_enemigos.iter_mut() {
             d.mover();
         }
-        for disparo in self.jugador.disparos.iter_mut() {
-            for disp_ene in disparos_enemigos.iter_mut().filter(|de| de.posicion == disparo.posicion) {
+        for disparo in self.jugador.disparos.iter_mut().filter(|d| d.activo) {
+            for disp_ene in disparos_enemigos.iter_mut().filter(|de| de.activo && de.posicion == disparo.posicion) {
                 disparo.activo = false;
                 disp_ene.activo = false;
+                break;
             }
         }
+
+        disparos_enemigos.retain(|de| de.activo);
 
         for disp in disparos_enemigos.iter() {
 
@@ -195,7 +198,7 @@ impl Juego {
             }
         }
 
-        disparos_enemigos.retain(|de| de.activo);
+        
         
 
 
@@ -219,7 +222,7 @@ impl Juego {
             }
 
             if alien.posicion.x == self.jugador.posicion.x {
-                if rng.rand_range(1, 5) == 2 {
+                if rng.rand_range(1, 20) == 12 {
                     alien.disparar();
                 }
             }

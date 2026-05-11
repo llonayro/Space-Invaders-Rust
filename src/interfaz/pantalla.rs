@@ -16,15 +16,20 @@ impl Pantalla {
                         pixeles: [[' '; 60]; 20]
                     };
         
-        for x in 0..60 {
-            p.pixeles[0][x] = '=';
-            p.pixeles[19][x] = '='
+        for x in 1..59 {
+            p.pixeles[0][x] = '═';
+            p.pixeles[19][x] = '═'
         }
 
-        for y in 0..20 {
+        for y in 1..19 {
             p.pixeles[y][0] = '║';
             p.pixeles[y][59] = '║'
         }
+
+        p.pixeles[0][0] = '╔';
+        p.pixeles[0][59] = '╗';
+        p.pixeles[19][0] = '╚';
+        p.pixeles[19][59] = '╝';
 
         p
     }
@@ -51,7 +56,10 @@ impl Pantalla {
             Hide                   
         ).unwrap();
 
-        println!("   Vidas: {:<2}             Puntuacion: {:0>5}", vidas, puntuacion);
+        println!("{:<20} {:>20}", 
+            format!("Vidas: {}", vidas), 
+            format!("Puntuación: {:0>5}", puntuacion)
+        );
 
         let mut salida = String::with_capacity(60*20 + 20);
 
