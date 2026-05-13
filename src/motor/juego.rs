@@ -21,6 +21,7 @@ impl Juego {
         let mut lista_enemigos = Vec::new();
         for y in 1..4 {
             for x in (25..35).step_by(2) {
+                let mut vida = 1;
                 let tipo = match y {
                               1 => {
                                 TipoEnemigo::Fuerte
@@ -38,7 +39,12 @@ impl Juego {
                                 TipoEnemigo::Normal
                               }
                            };
-                lista_enemigos.push(Enemigo::new(tipo, Posicion::new(x, y)))
+                
+                if tipo == TipoEnemigo::Fuerte {
+                    vida = 2;
+                }
+
+                lista_enemigos.push(Enemigo::new(tipo, Posicion::new(x, y), vida))
             }
         }
         Self{
@@ -152,12 +158,16 @@ impl Juego {
         for bala in self.jugador.disparos.iter_mut() {
             bala.mover();
             for alien in self.enemigos.iter_mut().filter(|a| a.activo && a.posicion == bala.posicion) {
-                self.puntuacion += match alien.tipo {
-                    TipoEnemigo::Fuerte => { 300 },
-                    TipoEnemigo::Rapido => { 200 },
-                    TipoEnemigo::Normal => { 100 },
-                };
-                alien.activo = false;
+                alien.vida -= 1;
+
+                if alien.vida < 1 {
+                    alien.activo = false;
+                    self.puntuacion += match alien.tipo {
+                        TipoEnemigo::Fuerte => { 300 },
+                        TipoEnemigo::Rapido => { 200 },
+                        TipoEnemigo::Normal => { 100 },
+                    };
+                }
                 bala.activo = false;
             }
             if bala.posicion.y == 0 {

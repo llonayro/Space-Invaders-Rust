@@ -2,7 +2,7 @@ use crate::entidades::disparo::Disparo;
 
 use super::{Posicion, Direccion};
 
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum TipoEnemigo {
     Normal,
     Rapido,
@@ -12,15 +12,17 @@ pub enum TipoEnemigo {
 pub struct Enemigo {
     pub tipo: TipoEnemigo,
     pub posicion: Posicion,
+    pub vida: u32,
     pub direccion: Direccion,
     pub activo: bool,
     pub disparos: Vec<Disparo>,
 }
 
 impl Enemigo {
-    pub fn new(tipo: TipoEnemigo, posicion: Posicion) -> Self{
+    pub fn new(tipo: TipoEnemigo, posicion: Posicion, vida: u32) -> Self{
         Self {tipo, 
               posicion,
+              vida,
               direccion: super::Direccion::Derecha,
               activo: true,
               disparos: Vec::new(),
