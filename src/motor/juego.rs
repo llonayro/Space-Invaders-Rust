@@ -114,8 +114,8 @@ impl Juego {
     }
 
     pub fn actualizar_enemigos(&mut self){
-        let x_max = self.enemigos.iter().map(|a| a.posicion.x).max().unwrap_or(0);
-        let x_min = self.enemigos.iter().map(|a| a.posicion.x).min().unwrap_or(0);
+        let x_max = self.enemigos.iter().filter(|a| a.activo).map(|a| a.posicion.x).max().unwrap_or(0);
+        let x_min = self.enemigos.iter().filter(|a| a.activo).map(|a| a.posicion.x).min().unwrap_or(0);
 
         let en_borde_der = x_max == self.pantalla.pixeles[0].len() - 2;
         let en_borde_izq = x_min == 1;
@@ -144,10 +144,12 @@ impl Juego {
 
         for alien in self.enemigos.iter_mut() {
             alien.direccion = nueva_direccion;
-            alien.mover();
+            if alien.activo {
+                alien.mover();
+            }
         }
 
-        if self.enemigos.last().is_some_and(|e| e.posicion.y == 18) {
+        if self.enemigos.iter().rev().find(|a| a.activo).is_some_and(|a| a.posicion.y == 19 || a.posicion == self.jugador.posicion){
             self.game_over = true
         }
 
