@@ -19,10 +19,9 @@ pub struct Juego {
 impl Juego {
     pub fn new() -> Self {
         let mut lista_enemigos = Vec::new();
+        let mut vida = 1;
         for y in 1..4 {
-            for x in (25..35).step_by(2) {
-                let mut vida = 1;
-                let tipo = match y {
+            let tipo = match y {
                               1 => {
                                 TipoEnemigo::Fuerte
                               }
@@ -38,12 +37,11 @@ impl Juego {
                               _ => {
                                 TipoEnemigo::Normal
                               }
-                           };
-                
-                if tipo == TipoEnemigo::Fuerte {
-                    vida = 2;
-                }
-
+            };
+            if tipo == TipoEnemigo::Fuerte {
+                vida = 2;
+            }
+            for x in (25..35).step_by(2) {
                 lista_enemigos.push(Enemigo::new(tipo, Posicion::new(x, y), vida))
             }
         }
@@ -60,25 +58,23 @@ impl Juego {
     pub fn preparar_pantalla(&mut self){
         self.pantalla.limpiar_medio();
 
-        for alien in self.enemigos.iter() {
-            if alien.activo {
-                let c = match alien.tipo {
-                            TipoEnemigo::Fuerte => {
-                                'Ѫ'
-                            }
+        for alien in self.enemigos.iter().filter(|a| a.activo) {
+            let c = match alien.tipo {
+                        TipoEnemigo::Fuerte => {
+                            'Ѫ'
+                        }
 
-                            TipoEnemigo::Normal => {
-                                '¤'
-                            }
+                        TipoEnemigo::Normal => {
+                            '¤'
+                        }
 
-                            TipoEnemigo::Rapido => {
-                                'Ѧ'
-                            }
+                        TipoEnemigo::Rapido => {
+                            'Ѧ'
+                        }
 
-                        };
-                
-                self.pantalla.dibujar_punto(alien.posicion.x, alien.posicion.y, c)
-            }
+                    };
+            
+            self.pantalla.dibujar_punto(alien.posicion.x, alien.posicion.y, c)
         }
 
         for disparo in self.jugador.disparos.iter() {
@@ -198,7 +194,6 @@ impl Juego {
         disparos_enemigos.retain(|de| de.activo);
 
         for disp in disparos_enemigos.iter() {
-
             if disp.posicion == self.jugador.posicion {
                 self.jugador.vida -= 1;
                 self.jugador.posicion.x = 30;
@@ -209,10 +204,6 @@ impl Juego {
                 self.game_over = true;
             }
         }
-
-        
-        
-
 
     }
 
@@ -231,6 +222,12 @@ impl Juego {
         for alien in self.enemigos.iter_mut() {
             if rng.rand_range(1, 100) == 27 {
                 alien.disparar();
+            }
+
+            if alien.tipo == TipoEnemigo::Rapido {
+                if rng.rand_range(1, 100) == 27 {
+                alien.disparar();
+            }
             }
 
             if alien.posicion.x == self.jugador.posicion.x {
